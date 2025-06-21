@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Método Bootstrap - Análisis Estadístico</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px;
+}
+
+.input-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.results-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+select, input, textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+}
+
+select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: #4facfe;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.step {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-left: 5px solid #4facfe;
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.step.active {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.03), rgba(255, 255, 255, 1));
+    border-left-color: #00f2fe;
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.15);
+    transform: translateY(-2px);
+}
+
+.step h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.step-number {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(79, 172, 254, 0.3);
+}
+
+.data-box {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    font-family: 'Courier New', monospace;
+    position: relative;
+    overflow: hidden;
+}
+
+.data-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+}
+
+.data-box.prep {
+    border-color: #17a2b8;
+    background: linear-gradient(135deg, #e8f7fa, #ffffff);
+}
+
+.data-box.original {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #e8f5e9, #ffffff);
+}
+
+.data-box.bootstrap {
+    border-color: #ffc107;
+    background: linear-gradient(135deg, #fff8e1, #ffffff);
+}
+
+.data-box.results {
+    border-color: #6f42c1;
+    background: linear-gradient(135deg, #f3e5f5, #ffffff);
+}
+
+.data-box.confidence {
+    border-color: #20c997;
+    background: linear-gradient(135deg, #e8f9f5, #ffffff);
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.data-row:last-child {
+    border-bottom: none;
+}
+
+.data-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.data-value {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1rem;
+    background: rgba(79, 172, 254, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.sample-detail {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    transition: all 0.3s ease;
+}
+
+.sample-detail:hover {
+    background: rgba(79, 172, 254, 0.05);
+    border-color: #4facfe;
+}
+
+.sample-number {
+    background: #4facfe;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.interpretation-box {
+    background: linear-gradient(135deg, #fff8dc, #ffffff);
+    border: 2px solid #f0c674;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+}
+
+.interpretation-title {
+    color: #8b4513;
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.interpretation-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.interpretation-item:hover {
+    background: rgba(240, 198, 116, 0.1);
+}
+
+.interpretation-number {
+    background: #8b4513;
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.scroll-container {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background: #4facfe;
+    border-radius: 4px;
+}
+
+.result-card {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.result-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.result-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.chart-container {
+    margin-top: 20px;
+    height: 300px;
+    position: relative;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.loading.show {
+    display: block;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4facfe;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.confidence-interval {
+    background: #e8f4fd;
+    border: 2px solid #4facfe;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.ci-title {
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.ci-values {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ci-bound {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #4facfe;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+    <h1>🔬 Método Bootstrap</h1>
+    <p>Análisis Estadístico con Remuestreo</p>
+</div>
+
+<div class="main-content">
+    <div class="input-section">
+        <h2>📊 Configuración del Análisis</h2>
+        
+        <div class="form-group">
+            <label for="statistic">Estadístico a Analizar:</label>
+            <select id="statistic">
+                <option value="mean">Media Aritmética</option>
+                <option value="median">Mediana</option>
+                <option value="std">Desviación Estándar</option>
+                <option value="proportion">Proporción</option>
+                <option value="percentile90">Percentil 90</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="proportionGroup" style="display: none;">
+            <label for="successValue">Valor de Éxito (para proporción):</label>
+            <input type="text" id="successValue" placeholder="Ej: 1, 'Sí', 'Exitoso'">
+        </div>
+
+        <div class="form-group">
+            <label for="data">Datos (separados por comas o uno por línea):</label>
+            <textarea id="data" placeholder="Ejemplo: 12, 15, 18, 21, 24, 27, 30, 33, 36, 39"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="bootstrapSamples">Número de Muestras Bootstrap:</label>
+            <input type="number" id="bootstrapSamples" value="1000" min="100" max="10000">
+        </div>
+
+        <div class="form-group">
+            <label for="confidenceLevel">Nivel de Confianza (%):</label>
+            <input type="number" id="confidenceLevel" value="95" min="80" max="99" step="1">
+        </div>
+
+        <button class="btn" onclick="runBootstrap()">🚀 Ejecutar Análisis Bootstrap</button>
+    </div>
+
+    <div class="results-section">
+        <h2>📈 Resultados del Análisis</h2>
+        <div id="results"></div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Procesando análisis bootstrap...</p>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+let chart = null;
+
+// Mostrar/ocultar campo de valor de éxito para proporción
+document.getElementById('statistic').addEventListener('change', function() {
+    const proportionGroup = document.getElementById('proportionGroup');
+    if (this.value === 'proportion') {
+        proportionGroup.style.display = 'block';
+    } else {
+        proportionGroup.style.display = 'none';
+    }
+});
+
+// Función para calcular estadísticos
+function calculateStatistic(data, statistic, successValue = null) {
+    const n = data.length;
+    
+    switch(statistic) {
+        case 'mean':
+            return data.reduce((a, b) => a + b, 0) / n;
+        
+        case 'median':
+            const sorted = [...data].sort((a, b) => a - b);
+            return n % 2 === 0 ? 
+                (sorted[n/2 - 1] + sorted[n/2]) / 2 : 
+                sorted[Math.floor(n/2)];
+        
+        case 'std':
+            const mean = data.reduce((a, b) => a + b, 0) / n;
+            const variance = data.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (n - 1);
+            return Math.sqrt(variance);
+        
+        case 'proportion':
+            const successes = data.filter(x => x.toString() === successValue.toString()).length;
+            return successes / n;
+        
+        case 'percentile90':
+            const sortedP90 = [...data].sort((a, b) => a - b);
+            const index = Math.ceil(0.9 * n) - 1;
+            return sortedP90[index];
+        
+        default:
+            return 0;
+    }
+}
+
+// Función para generar muestra bootstrap
+function bootstrapSample(originalData) {
+    const n = originalData.length;
+    const sample = [];
+    for (let i = 0; i < n; i++) {
+        const randomIndex = Math.floor(Math.random() * n);
+        sample.push(originalData[randomIndex]);
+    }
+    return sample;
+}
+
+// Función principal del bootstrap
+async function runBootstrap() {
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    
+    loading.classList.add('show');
+    results.innerHTML = '';
+
+    try {
+        // Obtener datos de entrada
+        const dataInput = document.getElementById('data').value.trim();
+        const statisticType = document.getElementById('statistic').value;
+        const numBootstrap = parseInt(document.getElementById('bootstrapSamples').value);
+        const confidenceLevel = parseFloat(document.getElementById('confidenceLevel').value);
+        const successValue = document.getElementById('successValue').value;
+
+        if (!dataInput) {
+            throw new Error('Por favor ingrese los datos');
+        }
+
+        // Parsear datos
+        let originalData;
+        if (statisticType === 'proportion') {
+            originalData = dataInput.split(/[,\n]/).map(x => x.trim()).filter(x => x);
+        } else {
+            originalData = dataInput.split(/[,\n]/)
+                .map(x => parseFloat(x.trim()))
+                .filter(x => !isNaN(x));
+        }
+
+        if (originalData.length === 0) {
+            throw new Error('No se pudieron parsear los datos correctamente');
+        }
+
+        // PREPARACIÓN: Identificar Muestra y Estadístico
+        await showStep('prep', '📦 Preparación: Identificar Muestra y Estadístico', 
+            `<div class="data-box prep">
+                <div class="data-row">
+                    <span class="data-label">📊 Datos originales:</span>
+                    <span class="data-value">[${originalData.map(x => typeof x === 'number' ? x.toFixed(2) : x).join(', ')}]</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">📏 Tamaño de muestra:</span>
+                    <span class="data-value">n = ${originalData.length}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">🎯 Estadístico a estimar:</span>
+                    <span class="data-value">${getStatisticName(statisticType)}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">🔢 Iteraciones Bootstrap:</span>
+                    <span class="data-value">B = ${numBootstrap}</span>
+                </div>
+            </div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; margin-top: 15px;">
+                💡 Definimos claramente qué datos tenemos y qué queremos estimar
+            </p>`);
+
+        // PASO 1: Calcular Estadístico Original
+        const originalStatistic = calculateStatistic(originalData, statisticType, successValue);
+        await showStep(1, '📊 Paso 1: Calcular Estadístico Original', 
+            `<div class="data-box original">
+                <div class="data-row">
+                    <span class="data-label">📈 ${getStatisticName(statisticType)} original:</span>
+                    <span class="data-value" style="font-size: 1.2rem; background: #28a745; color: white;">${originalStatistic.toFixed(4)}</span>
+                </div>
+            </div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; margin-top: 15px;">
+                💡 Calculamos nuestro estadístico de interés en la muestra original
+            </p>`);
+
+        // PASO 2: Iniciar Proceso Bootstrap
+        await showStep(2, '🔁 Paso 2: Iniciar Proceso Bootstrap Manual', 
+            `<div class="data-box bootstrap">
+                <div style="text-align: center; padding: 10px;">
+                    <strong style="color: #e67e22; font-size: 1.1rem;">🚀 Iniciando Bootstrap con ${numBootstrap} iteraciones...</strong><br>
+                    <span style="color: #7f8c8d;">📝 Mostrando las primeras 5 muestras bootstrap detalladas:</span>
+                </div>
+            </div>`);
+
+        // Proceso Bootstrap con detalles de las primeras 5 muestras
+        const bootstrapStatistics = [];
+        let sampleDetailsHtml = '<div class="scroll-container">';
+        
+        for (let i = 0; i < numBootstrap; i++) {
+            const bootstrapData = bootstrapSample(originalData);
+            const bootstrapStat = calculateStatistic(bootstrapData, statisticType, successValue);
+            bootstrapStatistics.push(bootstrapStat);
+            
+            // Mostrar detalles de las primeras 5 muestras
+            if (i < 5) {
+                sampleDetailsHtml += `
+                    <div class="sample-detail">
+                        <div style="margin-bottom: 8px;">
+                            <span class="sample-number">#${i + 1}</span>
+                            <strong>Muestra:</strong> [${bootstrapData.map(x => typeof x === 'number' ? x.toFixed(2) : x).slice(0, 10).join(', ')}${bootstrapData.length > 10 ? '...' : ''}]
+                        </div>
+                        <div style="padding-left: 35px;">
+                            <span style="color: #4facfe;">→</span> <strong>${getStatisticName(statisticType)} bootstrap:</strong> 
+                            <span style="background: #4facfe; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${bootstrapStat.toFixed(4)}</span>
+                        </div>
+                    </div>`;
+            }
+            
+            // Actualizar progreso cada 200 iteraciones
+            if (i > 0 && i % 200 === 0) {
+                await showProgressUpdate(i, numBootstrap);
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+        }
+        
+        sampleDetailsHtml += `</div>
+        <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #d4edda, #ffffff); border-radius: 8px; text-align: center;">
+            <strong style="color: #155724;">✅ Completado: ${numBootstrap} muestras bootstrap generadas exitosamente</strong>
+        </div>`;
+
+        // PASO 3: Mostrar proceso detallado
+        await showStep(3, '📋 Paso 3: Proceso Bootstrap Detallado', 
+            `<div class="data-box bootstrap">
+                ${sampleDetailsHtml}
+            </div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; margin-top: 15px;">
+                💡 Cada muestra bootstrap se toma <strong>CON reemplazo</strong> del mismo tamaño que la original
+            </p>`);
+
+        // PASO 4: Análisis de Distribución Bootstrap
+        const mean = bootstrapStatistics.reduce((a, b) => a + b, 0) / bootstrapStatistics.length;
+        const variance = bootstrapStatistics.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (bootstrapStatistics.length - 1);
+        const std = Math.sqrt(variance);
+
+        await showStep(4, '📈 Paso 4: Analizar Distribución Bootstrap', 
+            `<div class="data-box results">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h4 style="color: #6f42c1; margin: 0; font-size: 1.2rem;">═══ RESULTADOS BOOTSTRAP ═══</h4>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">📌 ${getStatisticName(statisticType)} original:</span>
+                    <span class="data-value">${originalStatistic.toFixed(4)}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">📈 Media de bootstrap:</span>
+                    <span class="data-value">${mean.toFixed(4)}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">📉 Error estándar bootstrap:</span>
+                    <span class="data-value">${std.toFixed(4)}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">🔢 Número total de muestras:</span>
+                    <span class="data-value">${bootstrapStatistics.length}</span>
+                </div>
+            </div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; margin-top: 15px;">
+                💡 Examinamos la colección de estadísticos bootstrap obtenidos
+            </p>`);
+
+        // PASO 5: Calcular Intervalos de Confianza
+        const sortedStats = [...bootstrapStatistics].sort((a, b) => a - b);
+        const alpha = (100 - confidenceLevel) / 100;
+        const lowerIndex = Math.floor(alpha / 2 * bootstrapStatistics.length);
+        const upperIndex = Math.ceil((1 - alpha / 2) * bootstrapStatistics.length) - 1;
+        
+        const lowerBound = sortedStats[lowerIndex];
+        const upperBound = sortedStats[upperIndex];
+
+        await showStep(5, '✅ Paso 5: Calcular Intervalos de Confianza', 
+            `<div class="data-box confidence">
+                <div class="data-row">
+                    <span class="data-label">🎯 Percentil ${(alpha/2*100).toFixed(1)}%:</span>
+                    <span class="data-value">${lowerBound.toFixed(4)}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">🎯 Percentil ${((1-alpha/2)*100).toFixed(1)}%:</span>
+                    <span class="data-value">${upperBound.toFixed(4)}</span>
+                </div>
+                <div class="data-row" style="border-top: 2px solid #20c997; padding-top: 15px; margin-top: 15px;">
+                    <span class="data-label" style="font-size: 1.1rem;">✅ Intervalo de Confianza ${confidenceLevel}%:</span>
+                    <span class="data-value" style="font-size: 1.2rem; background: #20c997; color: white;">[${lowerBound.toFixed(4)}, ${upperBound.toFixed(4)}]</span>
+                </div>
+            </div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; margin-top: 15px;">
+                💡 Usamos los percentiles de la distribución bootstrap para crear intervalos
+            </p>`);
+
+        // PASO 6: Interpretación
+        await showStep(6, '🎓 Paso 6: Interpretación de Resultados', 
+            `<div class="interpretation-box">
+                <div class="interpretation-title">═══ INTERPRETACIÓN ═══</div>
+                <div class="interpretation-item">
+                    <div class="interpretation-number">1</div>
+                    <div>El Bootstrap permite estimar la variabilidad de un estadístico <strong>sin supuestos de normalidad</strong>.</div>
+                </div>
+                <div class="interpretation-item">
+                    <div class="interpretation-number">2</div>
+                    <div>El error estándar bootstrap <strong>(${std.toFixed(4)})</strong> cuantifica la precisión de nuestra estimación.</div>
+                </div>
+                <div class="interpretation-item">
+                    <div class="interpretation-number">3</div>
+                    <div>El intervalo de confianza <strong>[${lowerBound.toFixed(4)}, ${upperBound.toFixed(4)}]</strong> refleja la incertidumbre del parámetro poblacional.</div>
+                </div>
+                <div class="interpretation-item">
+                    <div class="interpretation-number">4</div>
+                    <div>La distribución bootstrap <strong>aproxima la verdadera distribución muestral</strong>.</div>
+                </div>
+            </div>`);
+
+        // Mostrar resultados finales
+        showFinalResults(originalStatistic, mean, std, lowerBound, upperBound, confidenceLevel, statisticType);
+        
+        // Crear histograma
+        createHistogram(bootstrapStatistics, originalStatistic, lowerBound, upperBound);
+
+    } catch (error) {
+        results.innerHTML = `<div class="step" style="border-left-color: #e74c3c; background: #fdf2f2;">
+            <h3 style="color: #e74c3c;">❌ Error</h3>
+            <p>${error.message}</p>
+        </div>`;
+    } finally {
+        loading.classList.remove('show');
+    }
+}
+
+// Función para mostrar actualizaciones de progreso
+async function showProgressUpdate(current, total) {
+    const progressPercent = Math.round((current / total) * 100);
+    // Mostrar progreso visualmente si es necesario
+}
+
+function getStatisticName(stat) {
+    const names = {
+        'mean': 'Media Aritmética',
+        'median': 'Mediana',
+        'std': 'Desviación Estándar',
+        'proportion': 'Proporción',
+        'percentile90': 'Percentil 90'
+    };
+    return names[stat] || stat;
+}
+
+async function showStep(stepNum, title, content) {
+    const results = document.getElementById('results');
+    const stepDiv = document.createElement('div');
+    stepDiv.className = 'step active';
+    
+    const stepNumber = typeof stepNum === 'string' ? '📋' : stepNum;
+    const stepNumDisplay = typeof stepNum === 'string' ? '' : `<span class="step-number">${stepNum}</span>`;
+    
+    stepDiv.innerHTML = `
+        <h3>${stepNumDisplay}${title}</h3>
+        <div>${content}</div>
+    `;
+    results.appendChild(stepDiv);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+}
+
+function showFinalResults(original, bootstrapMean, bootstrapStd, lowerBound, upperBound, confidence, statType) {
+    const results = document.getElementById('results');
+    
+    const finalDiv = document.createElement('div');
+    finalDiv.innerHTML = `
+        <div style="margin-top: 30px;">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">🎯 Resultados Finales</h3>
+            
+            <div class="result-card">
+                <div class="result-value">${original.toFixed(4)}</div>
+                <div class="result-label">${getStatisticName(statType)} Original</div>
+            </div>
+            
+            <div class="result-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="result-value">${bootstrapMean.toFixed(4)}</div>
+                <div class="result-label">Media Bootstrap</div>
+            </div>
+            
+            <div class="confidence-interval">
+                <div class="ci-title">Intervalo de Confianza del ${confidence}%</div>
+                <div class="ci-values">
+                    <div class="ci-bound">${lowerBound.toFixed(4)}</div>
+                    <div style="color: #2c3e50;">≤ μ ≤</div>
+                    <div class="ci-bound">${upperBound.toFixed(4)}</div>
+                </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                <strong>Error Estándar Bootstrap:</strong> ${bootstrapStd.toFixed(4)}
+            </div>
+        </div>
+    `;
+    results.appendChild(finalDiv);
+}
+
+function createHistogram(data, original, lower, upper) {
+    const results = document.getElementById('results');
+    
+    const chartContainer = document.createElement('div');
+    chartContainer.innerHTML = `
+        <div style="margin-top: 30px;">
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 Distribución Bootstrap</h3>
+            <div class="chart-container">
+                <canvas id="histogramChart"></canvas>
+            </div>
+        </div>
+    `;
+    results.appendChild(chartContainer);
+
+    // Crear histograma
+    const bins = 30;
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const binWidth = (max - min) / bins;
+    
+    const histogram = new Array(bins).fill(0);
+    const labels = [];
+    
+    for (let i = 0; i < bins; i++) {
+        labels.push((min + i * binWidth).toFixed(3));
+    }
+    
+    data.forEach(value => {
+        const binIndex = Math.min(Math.floor((value - min) / binWidth), bins - 1);
+        histogram[binIndex]++;
+    });
+
+    const ctx = document.getElementById('histogramChart').getContext('2d');
+    
+    if (chart) {
+        chart.destroy();
+    }
+    
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Frecuencia',
+                data: histogram,
+                backgroundColor: 'rgba(79, 172, 254, 0.7)',
+                borderColor: 'rgba(79, 172, 254, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Distribución de Estadísticos Bootstrap'
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Valor del Estadístico'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Frecuencia'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Datos de ejemplo basados en tu código Python
+document.getElementById('data').value = '2.1, 2.5, 2.3, 2.8, 2.4, 2.6, 2.2, 2.7, 2.3, 2.5';
+document.getElementById('statistic').value = 'std';
+</script>
+</body>
+</html>
